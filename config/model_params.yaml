@@ -1,0 +1,75 @@
+# Model Hyperparameters Configuration
+
+# ARIMA/SARIMA Parameters
+arima:
+  auto_arima:
+    start_p: 0
+    start_q: 0
+    max_p: 5
+    max_q: 5
+    seasonal: true
+    stepwise: true
+    suppress_warnings: true
+    error_action: 'ignore'
+    
+  grid_search:
+    p_range: [0, 1, 2, 3]
+    d_range: [0, 1, 2]
+    q_range: [0, 1, 2, 3]
+    seasonal_p_range: [0, 1, 2]
+    seasonal_d_range: [0, 1]
+    seasonal_q_range: [0, 1, 2]
+    seasonal_periods: 252  # Trading days in a year
+
+# LSTM Parameters
+lstm:
+  sequence_length: 60  # Number of previous days to use for prediction
+  
+  architecture:
+    layers: 2
+    units: [50, 50]
+    dropout: 0.2
+    activation: "tanh"
+    
+  training:
+    epochs: 100
+    batch_size: 32
+    validation_split: 0.2
+    early_stopping:
+      patience: 10
+      restore_best_weights: true
+    
+  optimization:
+    optimizer: "adam"
+    learning_rate: 0.001
+    loss: "mse"
+    metrics: ["mae"]
+
+# Model Evaluation
+evaluation:
+  metrics: ["mae", "rmse", "mape"]
+  forecast_horizon: 252  # Days to forecast (approximately 1 year)
+  confidence_intervals: [0.05, 0.95]  # 90% confidence interval
+
+# Portfolio Optimization
+portfolio:
+  benchmark:
+    SPY: 0.6
+    BND: 0.4
+    
+  optimization_methods:
+    - "max_sharpe"
+    - "min_volatility"
+    - "efficient_risk"
+    
+  constraints:
+    max_weight: 0.8
+    min_weight: 0.0
+    
+  risk_free_rate: 0.02  # Annual risk-free rate (2%)
+  
+# Backtesting
+backtesting:
+  rebalance_frequency: "monthly"  # Options: daily, weekly, monthly, quarterly
+  transaction_costs: 0.001  # 0.1% transaction cost
+  initial_capital: 100000  # Starting portfolio value

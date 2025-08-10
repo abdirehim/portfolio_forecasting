@@ -1,0 +1,42 @@
+# Portfolio Forecasting System Configuration
+
+# Data Configuration
+data:
+  symbols: ["TSLA", "BND", "SPY"]
+  start_date: "2015-07-01"
+  end_date: "2025-07-31"
+  train_end_date: "2023-12-31"
+  test_start_date: "2024-01-01"
+  backtest_start_date: "2024-08-01"
+  backtest_end_date: "2025-07-31"
+
+# Cache Configuration
+cache:
+  enabled: true
+  cache_dir: "data/cache"
+  expiry_hours: 24
+
+# Data Processing
+preprocessing:
+  handle_missing: "interpolate"  # Options: interpolate, forward_fill, drop
+  outlier_threshold: 3.0  # Standard deviations for outlier detection
+  scaling_method: "standard"  # Options: standard, minmax, robust
+
+# Risk Analysis
+risk:
+  confidence_level: 0.05  # For VaR calculation
+  rolling_window: 30  # Days for rolling statistics
+
+# Visualization
+visualization:
+  figure_size: [12, 8]
+  style: "seaborn-v0_8"
+  color_palette: "husl"
+  save_plots: true
+  plot_dir: "data/plots"
+
+# Logging
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "logs/portfolio_forecasting.log"
