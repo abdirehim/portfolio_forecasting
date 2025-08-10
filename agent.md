@@ -137,25 +137,9 @@ Frame business objectives and synthesize insights.
 
 Make data-driven portfolio recommendations.
 
-Team
-
-Tutors: Mahlet, Rediet, Kerod, Rehmet
-
-Key Dates
 
 
 
-
-
-Case Discussion: Wednesday, August 6, 2025 (#all-week11 for questions)
-
-
-
-Interim Solution: 20:00 UTC, Sunday, August 10, 2025
-
-
-
-Final Submission: 20:00 UTC, Tuesday, August 12, 2025
 
 Instructions
 
@@ -252,6 +236,10 @@ Compute rolling means and standard deviations.
 
 
 Document insights (e.g., TSLA’s price direction, return fluctuations, risk metrics).
+
+
+
+
 
 Task 2: Develop Time Series Forecasting Models
 
