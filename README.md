@@ -497,14 +497,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Statsmodels** for statistical modeling tools
 - **Plotly/Matplotlib** for visualization capabilities
 
-## 📞 Support
 
-For questions, issues, or support:
-
-- 📧 Email: [support@portfolioforecasting.com](mailto:support@portfolioforecasting.com)
-- 📖 Documentation: [docs.portfolioforecasting.com](https://docs.portfolioforecasting.com)
-- 🐛 Issues: [GitHub Issues](https://github.com/username/portfolio-forecasting/issues)
-- 💬 Discussions: [GitHub Discussions](https://github.com/username/portfolio-forecasting/discussions)
 
 ---
 
