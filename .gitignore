@@ -140,7 +140,6 @@ models/
 *.hdf5
 
 # IDE
-.vscode/
 .idea/
 *.swp
 *.swo
@@ -160,3 +159,7 @@ Thumbs.db
 *.temp
 temp/
 tmp/
+temp_auto_push.bat
+temp_interactive_push.bat
+.gitignore
+branch_structure.json

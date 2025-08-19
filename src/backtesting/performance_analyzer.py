@@ -225,7 +225,7 @@ CONCLUSION
                             backtest_results: BacktestResults,
                             save_path: Optional[str] = None) -> plt.Figure:
         """
-        Create comprehensive performance visualization.
+        Create comprehensive performance visualization with enhanced clarity and insights.
         
         Args:
             backtest_results: Backtesting results
@@ -234,9 +234,10 @@ CONCLUSION
         Returns:
             Matplotlib figure
         """
-        fig, axes = plt.subplots(2, 2, figsize=(16, 12))
+        fig, axes = plt.subplots(2, 2, figsize=(18, 14))
+        fig.suptitle('Portfolio Performance Analysis Dashboard', fontsize=20, fontweight='bold', y=0.98)
         
-        # Plot 1: Cumulative returns
+        # Plot 1: Wealth growth comparison with key metrics
         ax1 = axes[0, 0]
         portfolio_series = backtest_results.portfolio_series
         benchmark_series = backtest_results.benchmark_series
@@ -245,64 +246,119 @@ CONCLUSION
         portfolio_normalized = portfolio_series / portfolio_series.iloc[0]
         benchmark_normalized = benchmark_series / benchmark_series.iloc[0]
         
+        # Calculate key metrics for labels
+        portfolio_total_return = (portfolio_normalized.iloc[-1] - 1) * 100
+        benchmark_total_return = (benchmark_normalized.iloc[-1] - 1) * 100
+        outperformance = portfolio_total_return - benchmark_total_return
+        
         ax1.plot(portfolio_normalized.index, portfolio_normalized.values, 
-                label='Strategy', linewidth=2, color='blue')
+                label=f'Strategy ({portfolio_total_return:+.1f}%)', 
+                linewidth=3, color='#2E86AB', alpha=0.9)
         ax1.plot(benchmark_normalized.index, benchmark_normalized.values, 
-                label='Benchmark', linewidth=2, color='red', alpha=0.7)
+                label=f'Benchmark ({benchmark_total_return:+.1f}%)', 
+                linewidth=3, color='#A23B72', alpha=0.8)
         
-        ax1.set_title('Cumulative Returns Comparison')
-        ax1.set_ylabel('Cumulative Return (Normalized)')
-        ax1.legend()
-        ax1.grid(True, alpha=0.3)
+        # Add performance annotation
+        ax1.text(0.02, 0.98, f'Outperformance: {outperformance:+.1f}%', 
+                transform=ax1.transAxes, fontsize=12, fontweight='bold',
+                bbox=dict(boxstyle='round', facecolor='lightblue', alpha=0.8),
+                verticalalignment='top')
         
-        # Plot 2: Rolling Sharpe ratio
+        ax1.axhline(y=1, color='black', linestyle='-', alpha=0.3, linewidth=1)
+        ax1.set_title('Cumulative Wealth Growth ($1 Initial Investment)', fontsize=14, fontweight='bold', pad=15)
+        ax1.set_xlabel('Time Period', fontsize=12)
+        ax1.set_ylabel('Portfolio Value ($)', fontsize=12)
+        ax1.legend(loc='upper left', frameon=True, fancybox=True, shadow=True)
+        ax1.grid(True, alpha=0.3, linestyle='--')
+        ax1.tick_params(axis='x', rotation=45)
+        
+        # Plot 2: Risk-adjusted performance evolution
         ax2 = axes[0, 1]
         rolling_metrics = self._calculate_rolling_metrics(backtest_results, window=60)
         
-        ax2.plot(rolling_metrics.index, rolling_metrics['Portfolio_Sharpe'], 
-                label='Strategy Sharpe', linewidth=2, color='blue')
-        ax2.plot(rolling_metrics.index, rolling_metrics['Benchmark_Sharpe'], 
-                label='Benchmark Sharpe', linewidth=2, color='red', alpha=0.7)
+        if not rolling_metrics.empty:
+            strategy_avg_sharpe = rolling_metrics['Portfolio_Sharpe'].mean()
+            benchmark_avg_sharpe = rolling_metrics['Benchmark_Sharpe'].mean()
+            
+            ax2.plot(rolling_metrics.index, rolling_metrics['Portfolio_Sharpe'], 
+                    label=f'Strategy (Avg: {strategy_avg_sharpe:.2f})', 
+                    linewidth=3, color='#2E86AB')
+            ax2.plot(rolling_metrics.index, rolling_metrics['Benchmark_Sharpe'], 
+                    label=f'Benchmark (Avg: {benchmark_avg_sharpe:.2f})', 
+                    linewidth=3, color='#A23B72', alpha=0.8)
+            
+            # Add performance threshold lines
+            ax2.axhline(y=0, color='black', linestyle='-', alpha=0.5, linewidth=1)
+            ax2.axhline(y=1, color='green', linestyle='--', alpha=0.7, linewidth=1, label='Good Performance')
+            ax2.axhline(y=2, color='darkgreen', linestyle='--', alpha=0.7, linewidth=1, label='Excellent Performance')
         
-        ax2.set_title('Rolling 60-Day Sharpe Ratio')
-        ax2.set_ylabel('Sharpe Ratio')
-        ax2.legend()
-        ax2.grid(True, alpha=0.3)
+        ax2.set_title('Risk-Adjusted Performance Evolution (60-Day Rolling Sharpe)', fontsize=14, fontweight='bold', pad=15)
+        ax2.set_xlabel('Time Period', fontsize=12)
+        ax2.set_ylabel('Sharpe Ratio', fontsize=12)
+        ax2.legend(loc='upper right', frameon=True, fancybox=True, shadow=True)
+        ax2.grid(True, alpha=0.3, linestyle='--')
+        ax2.tick_params(axis='x', rotation=45)
         
-        # Plot 3: Drawdown analysis
+        # Plot 3: Drawdown comparison with recovery analysis
         ax3 = axes[1, 0]
-        drawdowns = self._calculate_drawdown_series(backtest_results.portfolio_series)
-        benchmark_drawdowns = self._calculate_drawdown_series(backtest_results.benchmark_series)
+        drawdowns = self._calculate_drawdown_series(backtest_results.portfolio_series) * 100
+        benchmark_drawdowns = self._calculate_drawdown_series(backtest_results.benchmark_series) * 100
+        
+        # Calculate max drawdowns for labels
+        max_strategy_dd = drawdowns.min()
+        max_benchmark_dd = benchmark_drawdowns.min()
         
         ax3.fill_between(drawdowns.index, drawdowns.values, 0, 
-                        alpha=0.3, color='blue', label='Strategy Drawdown')
+                        alpha=0.4, color='#2E86AB', 
+                        label=f'Strategy (Max: {max_strategy_dd:.1f}%)')
         ax3.fill_between(benchmark_drawdowns.index, benchmark_drawdowns.values, 0, 
-                        alpha=0.3, color='red', label='Benchmark Drawdown')
+                        alpha=0.4, color='#A23B72', 
+                        label=f'Benchmark (Max: {max_benchmark_dd:.1f}%)')
         
-        ax3.set_title('Drawdown Analysis')
-        ax3.set_ylabel('Drawdown (%)')
-        ax3.legend()
-        ax3.grid(True, alpha=0.3)
+        # Add drawdown severity reference lines
+        ax3.axhline(y=-5, color='orange', linestyle='--', alpha=0.7, linewidth=1, label='Moderate Risk (-5%)')
+        ax3.axhline(y=-10, color='red', linestyle='--', alpha=0.7, linewidth=1, label='High Risk (-10%)')
         
-        # Plot 4: Monthly returns distribution
+        ax3.set_title('Drawdown Analysis & Risk Assessment', fontsize=14, fontweight='bold', pad=15)
+        ax3.set_xlabel('Time Period', fontsize=12)
+        ax3.set_ylabel('Drawdown (%)', fontsize=12)
+        ax3.legend(loc='lower right', frameon=True, fancybox=True, shadow=True)
+        ax3.grid(True, alpha=0.3, linestyle='--')
+        ax3.tick_params(axis='x', rotation=45)
+        
+        # Plot 4: Return distribution comparison with statistics
         ax4 = axes[1, 1]
         monthly_returns = self._calculate_monthly_returns(backtest_results)
         
-        ax4.hist(monthly_returns['Portfolio'], bins=20, alpha=0.7, 
-                label='Strategy', color='blue', density=True)
-        ax4.hist(monthly_returns['Benchmark'], bins=20, alpha=0.7, 
-                label='Benchmark', color='red', density=True)
+        if not monthly_returns.empty:
+            # Calculate statistics for annotations
+            strategy_mean = monthly_returns['Portfolio'].mean()
+            strategy_std = monthly_returns['Portfolio'].std()
+            benchmark_mean = monthly_returns['Benchmark'].mean()
+            benchmark_std = monthly_returns['Benchmark'].std()
+            
+            ax4.hist(monthly_returns['Portfolio'], bins=25, alpha=0.7, 
+                    label=f'Strategy (μ={strategy_mean:.1f}%, σ={strategy_std:.1f}%)', 
+                    color='#2E86AB', density=True, edgecolor='white')
+            ax4.hist(monthly_returns['Benchmark'], bins=25, alpha=0.7, 
+                    label=f'Benchmark (μ={benchmark_mean:.1f}%, σ={benchmark_std:.1f}%)', 
+                    color='#A23B72', density=True, edgecolor='white')
+            
+            # Add mean lines
+            ax4.axvline(x=strategy_mean, color='#2E86AB', linestyle='--', linewidth=2, alpha=0.8)
+            ax4.axvline(x=benchmark_mean, color='#A23B72', linestyle='--', linewidth=2, alpha=0.8)
         
-        ax4.set_title('Monthly Returns Distribution')
-        ax4.set_xlabel('Monthly Return (%)')
-        ax4.set_ylabel('Density')
-        ax4.legend()
-        ax4.grid(True, alpha=0.3)
+        ax4.axvline(x=0, color='black', linestyle='-', alpha=0.5, linewidth=1)
+        ax4.set_title('Monthly Return Distribution Analysis', fontsize=14, fontweight='bold', pad=15)
+        ax4.set_xlabel('Monthly Return (%)', fontsize=12)
+        ax4.set_ylabel('Probability Density', fontsize=12)
+        ax4.legend(loc='upper right', frameon=True, fancybox=True, shadow=True)
+        ax4.grid(True, alpha=0.3, linestyle='--')
         
-        plt.tight_layout()
+        plt.tight_layout(pad=3.0)
         
         if save_path:
-            fig.savefig(save_path, dpi=300, bbox_inches='tight')
+            fig.savefig(save_path, dpi=300, bbox_inches='tight', facecolor='white')
             logger.info(f"Performance visualization saved to {save_path}")
         
         return fig
